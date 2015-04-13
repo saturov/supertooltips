@@ -172,22 +172,36 @@ public class ToolTipView extends LinearLayout implements ViewTreeObserver.OnPreD
         setX(toolTipViewX);
         setPointerCenterX(relativeMasterViewCenterX);
 
-        final boolean showBelow = toolTipViewAboveY < 0;
+        //final boolean showBelow = toolTipViewAboveY < 0;
+        final boolean showAbove = toolTipViewBelowY < 0;
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            ViewHelper.setAlpha(mTopPointerView, showAbove ? 0 : 1);
+            ViewHelper.setAlpha(mBottomPointerView, showAbove ? 1 : 0);
+        } else {
+            mTopPointerView.setVisibility(showAbove ? GONE : VISIBLE);
+            mBottomPointerView.setVisibility(showAbove ? VISIBLE : GONE);
+        }
+
+        /*if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
             ViewHelper.setAlpha(mTopPointerView, showBelow ? 1 : 0);
             ViewHelper.setAlpha(mBottomPointerView, showBelow ? 0 : 1);
         } else {
             mTopPointerView.setVisibility(showBelow ? VISIBLE : GONE);
             mBottomPointerView.setVisibility(showBelow ? GONE : VISIBLE);
-        }
+        }*/
 
         int toolTipViewY;
-        if (showBelow) {
+        if (showAbove) {
+            toolTipViewY = toolTipViewAboveY;
+        } else {
+            toolTipViewY = toolTipViewBelowY;
+        }
+        /*if (showBelow) {
             toolTipViewY = toolTipViewBelowY;
         } else {
             toolTipViewY = toolTipViewAboveY;
-        }
+        }*/
 
         if (mToolTip.getAnimationType() == ToolTip.AnimationType.NONE) {
             ViewHelper.setTranslationY(this, toolTipViewY);
