@@ -34,6 +34,7 @@ public class ToolTip {
     private AnimationType mAnimationType;
     private boolean mShouldShowShadow;
     private Typeface mTypeface;
+    public boolean mDefOrientation; //сверху или снизу от родительского элемента по умолчанию
 
     /**
      * Creates a new ToolTip without any values.
@@ -45,6 +46,7 @@ public class ToolTip {
         mColor = 0;
         mContentView = null;
         mAnimationType = AnimationType.FROM_MASTER_VIEW;
+        mDefOrientation = false;
     }
 
     /**
@@ -112,6 +114,16 @@ public class ToolTip {
     }
 
     /**
+     * Set a custom orientation for the ToolTip. If true - the ToolTip will appear above the master view, if false - below the master view.
+     *
+     * @return this ToolTip to build upon.
+     */
+    public ToolTip defaultOrientationUp(final boolean above) {
+        mDefOrientation = above;
+        return this;
+    }
+
+    /**
      * Set the animation type for the ToolTip. Defaults to {@link AnimationType#FROM_MASTER_VIEW}.
      *
      * @return this ToolTip to build upon.
@@ -159,6 +171,8 @@ public class ToolTip {
     public int getColor() {
         return mColor;
     }
+
+    public boolean getOrientation() { return mDefOrientation; }
 
     public int getTextColor() {
         return mTextColor;

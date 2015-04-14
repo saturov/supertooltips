@@ -68,6 +68,8 @@ public class ToolTipView extends LinearLayout implements ViewTreeObserver.OnPreD
     private int mRelativeMasterViewX;
     private int mWidth;
 
+    private boolean defaultOrientationUp;
+
     private OnToolTipViewClickedListener mListener;
 
     public ToolTipView(final Context context) {
@@ -80,13 +82,13 @@ public class ToolTipView extends LinearLayout implements ViewTreeObserver.OnPreD
         setOrientation(VERTICAL);
         LayoutInflater.from(getContext()).inflate(R.layout.tooltip, this, true);
 
-        mTopPointerView = (ImageView) findViewById(R.id.tooltip_pointer_up);
+        mTopPointerView = (ImageView) findViewById(R.id.tooltip_pointer_up);        //поинтер вверх
         mTopFrame = findViewById(R.id.tooltip_topframe);
-        mContentHolder = (ViewGroup) findViewById(R.id.tooltip_contentholder);
-        mToolTipTV = (TextView) findViewById(R.id.tooltip_contenttv);
+        mContentHolder = (ViewGroup) findViewById(R.id.tooltip_contentholder);      //тело
+        mToolTipTV = (TextView) findViewById(R.id.tooltip_contenttv);               //текст
         mBottomFrame = findViewById(R.id.tooltip_bottomframe);
-        mBottomPointerView = (ImageView) findViewById(R.id.tooltip_pointer_down);
-        mShadowView = findViewById(R.id.tooltip_shadow);
+        mBottomPointerView = (ImageView) findViewById(R.id.tooltip_pointer_down);   //поинтер вниз
+        mShadowView = findViewById(R.id.tooltip_shadow);                            //тень
 
         setOnClickListener(this);
         getViewTreeObserver().addOnPreDrawListener(this);
@@ -139,6 +141,8 @@ public class ToolTipView extends LinearLayout implements ViewTreeObserver.OnPreD
             mShadowView.setVisibility(View.GONE);
         }
 
+        defaultOrientationUp = mToolTip.getOrientation();
+
         if (mDimensionsKnown) {
             applyToolTipPosition();
         }
@@ -172,36 +176,36 @@ public class ToolTipView extends LinearLayout implements ViewTreeObserver.OnPreD
         setX(toolTipViewX);
         setPointerCenterX(relativeMasterViewCenterX);
 
-        //final boolean showBelow = toolTipViewAboveY < 0;
-        final boolean showAbove = toolTipViewBelowY < 0;
+        if (defaultOrientationUp) {
+            final boolean showBelow = toolTipViewAboveY < 0;
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            ViewHelper.setAlpha(mTopPointerView, showAbove ? 0 : 1);
-            ViewHelper.setAlpha(mBottomPointerView, showAbove ? 1 : 0);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+                ViewHelper.setAlpha(mTopPointerView, showBelow ? 1 : 0);
+                ViewHelper.setAlpha(mBottomPointerView, showBelow ? 0 : 1);
+            } else {
+                mTopPointerView.setVisibility(showBelow ? VISIBLE : GONE);
+                mBottomPointerView.setVisibility(showBelow ? GONE : VISIBLE);
+            }
+            if (showBelow) {
+                toolTipViewY = toolTipViewBelowY;
+            } else {
+                toolTipViewY = toolTipViewAboveY;
+            }
         } else {
-            mTopPointerView.setVisibility(showAbove ? GONE : VISIBLE);
-            mBottomPointerView.setVisibility(showAbove ? VISIBLE : GONE);
+            final boolean showAbove = toolTipViewBelowY < 0;
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+                ViewHelper.setAlpha(mTopPointerView, showAbove ? 0 : 1);
+                ViewHelper.setAlpha(mBottomPointerView, showAbove ? 1 : 0);
+            } else {
+                mTopPointerView.setVisibility(showAbove ? GONE : VISIBLE);
+                mBottomPointerView.setVisibility(showAbove ? VISIBLE : GONE);
+            }
+            if (showAbove) {
+                toolTipViewY = toolTipViewAboveY;
+            } else {
+                toolTipViewY = toolTipViewBelowY;
+            }
         }
-
-        /*if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            ViewHelper.setAlpha(mTopPointerView, showBelow ? 1 : 0);
-            ViewHelper.setAlpha(mBottomPointerView, showBelow ? 0 : 1);
-        } else {
-            mTopPointerView.setVisibility(showBelow ? VISIBLE : GONE);
-            mBottomPointerView.setVisibility(showBelow ? GONE : VISIBLE);
-        }*/
-
-        int toolTipViewY;
-        if (showAbove) {
-            toolTipViewY = toolTipViewAboveY;
-        } else {
-            toolTipViewY = toolTipViewBelowY;
-        }
-        /*if (showBelow) {
-            toolTipViewY = toolTipViewBelowY;
-        } else {
-            toolTipViewY = toolTipViewAboveY;
-        }*/
 
         if (mToolTip.getAnimationType() == ToolTip.AnimationType.NONE) {
             ViewHelper.setTranslationY(this, toolTipViewY);
